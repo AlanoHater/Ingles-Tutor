@@ -13,7 +13,7 @@ Stack local de AI para aprender coreano con español como idioma base.
 ## Requisitos
 
 - Docker + Docker Compose
-- NVIDIA GPU con 6GB+ VRAM (RTX 4060 Laptop ✅)
+- NVIDIA GPU con 6GB+ VRAM (RTX 4050 Laptop ✅)
 - [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html)
 - Node.js 20+ (para desarrollo frontend sin Docker)
 

@@ -1,7 +1,7 @@
 services:
 
   # ============================================================
-  # BACKEND — FastAPI + modelos de AI (corre en tu 4060)
+  # BACKEND — FastAPI + modelos de AI (corre en tu GPU)
   # ============================================================
   backend:
     build:
@@ -53,9 +53,10 @@ services:
       - /app/.next
     environment:
       - NEXT_PUBLIC_APP_NAME=Korean Tutor
-      # En dev apunta al backend local
-      # En Vercel esto viene de las env vars del dashboard
+      # Server-side: Next.js API routes proxy al backend
       - BACKEND_URL=http://backend:8000
+      # Client-side: browser llama directo a ASR/TTS
+      - NEXT_PUBLIC_BACKEND_URL=http://localhost:8000
     depends_on:
       backend:
         condition: service_healthy
