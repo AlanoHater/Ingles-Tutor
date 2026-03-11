@@ -15,7 +15,7 @@ Stack local de AI para aprender coreano con español como idioma base.
 - Docker + Docker Compose
 - NVIDIA GPU con 6GB+ VRAM (RTX 4050 Laptop ✅)
 - [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html)
-- Node.js 20+ (para desarrollo frontend sin Docker)
+- Node.js 20+ (opcional, solo para desarrollo frontend sin Docker)
 
 ## Setup inicial
 
@@ -48,15 +48,7 @@ huggingface-cli download \
 
 > Los modelos ASR y TTS se descargan automáticamente la primera vez que inicias el backend.
 
-### 4. Instala llama-cpp-python con soporte CUDA
-
-> Esto se hace dentro del contenedor automáticamente, pero si instalas local:
-
-```bash
-CMAKE_ARGS="-DGGML_CUDA=on" pip install llama-cpp-python --force-reinstall
-```
-
-### 5. Levanta todo
+### 4. Levanta todo
 
 ```bash
 docker compose up --build
@@ -66,6 +58,41 @@ docker compose up --build
 - Backend API: http://localhost:8000
 - Docs API: http://localhost:8000/docs
 
+> ⏱️ El primer build tarda ~10-15 min porque compila `llama-cpp-python` con soporte CUDA dentro del contenedor. Los rebuilds siguientes son rápidos gracias al cache de Docker.
+
+## Optimizaciones GPU
+
+El backend aplica 4 optimizaciones automáticamente para sacarle el máximo a tu GPU:
+
+| Optimización           | Qué hace                                                         | Impacto                     |
+| ---------------------- | ---------------------------------------------------------------- | --------------------------- |
+| **KV Cache Quant**     | Cuantiza el cache de atención de f16 → q8_0                      | ~400MB VRAM liberados       |
+| **Flash Attention**    | Cálculo de atención optimizado                                   | ~20% más rápido             |
+| **Prompt Caching**     | Cachea el eval del system prompt entre requests                   | Latencia mínima del 2do msg en adelante |
+| **Continuous Batching**| Procesa tokens en batches de 512                                 | Mejor throughput            |
+
+Resultado esperado: **25-40 tokens/segundo** en una RTX 4050 Laptop.
+
+Todas son configurables via variables de entorno:
+
+```bash
+LLM_KV_TYPE_K=q8_0       # Tipo KV cache para Keys (default: q8_0)
+LLM_KV_TYPE_V=q8_0       # Tipo KV cache para Values (default: q8_0)
+LLM_FLASH_ATTN=true      # Flash Attention activado (default: true)
+LLM_N_BATCH=512           # Tokens por batch (default: 512)
+LLM_CONTEXT_SIZE=4096     # Tamaño de contexto (default: 4096)
+LLM_GPU_LAYERS=-1         # Capas en GPU, -1 = todas (default: -1)
+```
+
+## Endpoints del backend
+
+| Método | Ruta                   | Descripción                   |
+| ------ | ---------------------- | ----------------------------- |
+| GET    | `/health`              | Health check + estado de modelos |
+| POST   | `/v1/chat/completions` | Chat con el tutor (streaming SSE) |
+| POST   | `/tts`                 | Texto coreano → audio WAV     |
+| POST   | `/asr`                 | Audio → texto transcrito      |
+
 ## Desarrollo frontend sin Docker
 
 ```bash
@@ -74,19 +101,51 @@ npm install
 npm run dev
 ```
 
+## CI/CD
+
+El proyecto usa **GitHub Actions** con pipelines para frontend y backend:
+
+- **Backend** (`.github/workflows/ci-backend.yml`): lint con `ruff`, tests con `pytest`, verificación de Docker build
+- **Frontend** (`.github/workflows/ci-frontend.yml`): lint, type check, build, y deploy automático a Vercel en `main`
+
+Para el deploy a Vercel, agrega estos **secrets** en tu repo de GitHub:
+- `VERCEL_TOKEN`
+- `VERCEL_ORG_ID`
+- `VERCEL_PROJECT_ID`
+
 ## Deploy en producción
 
 - **Frontend** → Vercel (conecta el repo, agrega `BACKEND_URL` en env vars)
-- **Backend** → corre en tu 4060 expuesto via Cloudflare Tunnel
+- **Backend** → corre en tu GPU expuesto via Cloudflare Tunnel
   ```bash
   cloudflared tunnel --url http://localhost:8000
   ```
 
-## Endpoints del backend
+## Arquitectura
 
-| Método | Ruta                   | Descripción                   |
-| ------ | ---------------------- | ----------------------------- |
-| GET    | `/health`              | Health check                  |
-| POST   | `/v1/chat/completions` | Chat con el tutor (streaming) |
-| POST   | `/tts`                 | Texto → audio coreano         |
-| POST   | `/asr`                 | Audio → texto transcrito      |
+```
+korean-tutor/
+├── backend/
+│   ├── main.py              # FastAPI app, CORS, health, lifespan
+│   ├── routers/
+│   │   ├── chat.py          # LLM streaming (Qwen3.5-2B)
+│   │   ├── tts.py           # Text-to-Speech (Kokoro)
+│   │   └── asr.py           # Speech-to-Text (Qwen3-ASR)
+│   ├── models/              # GGUFs (no en git)
+│   ├── Dockerfile           # CUDA 12.1 + Python 3.11
+│   └── requirements.txt
+├── frontend/
+│   ├── app/
+│   │   ├── layout.tsx       # Root layout, SEO
+│   │   ├── page.tsx         # Chat principal
+│   │   └── api/chat/route.ts # Proxy SSE al backend
+│   ├── components/
+│   │   ├── ChatBox.tsx      # Lista de mensajes
+│   │   ├── MicButton.tsx    # Grabación de audio
+│   │   └── AudioPlayer.tsx  # Reproducir TTS
+│   ├── Dockerfile           # Node 20 Alpine
+│   └── package.json
+├── .github/workflows/       # CI/CD pipelines
+├── docker-compose.yml       # GPU passthrough + networking
+└── README.md
+```
