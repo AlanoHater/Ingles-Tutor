@@ -1,0 +1,9 @@
+# Dependencies (installed inside container)
+node_modules/
+.next/
+out/
+
+# Misc
+.env
+.env.*
+*.log
