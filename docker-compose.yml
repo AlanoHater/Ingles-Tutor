@@ -1,0 +1,66 @@
+services:
+
+  # ============================================================
+  # BACKEND — FastAPI + modelos de AI (corre en tu 4060)
+  # ============================================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: korean-tutor-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      # Código con hot-reload
+      - ./backend:/app
+      # Modelos persistentes fuera del contenedor
+      # Descárgalos una vez, no se borran al rebuild
+      - ./backend/models:/app/models
+    environment:
+      - MODEL_PATH=/app/models/qwen3.5-2b-q4_k_m.gguf
+      - ASR_MODEL=Qwen/Qwen3-ASR-0.6B
+      - TTS_VOICE=kf_bella       # voz coreana de Kokoro
+      - PYTHONUNBUFFERED=1
+    # GPU passthrough — requiere NVIDIA Container Toolkit
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ============================================================
+  # FRONTEND — Next.js (solo para dev local)
+  # En producción esta sección no se usa → Vercel
+  # ============================================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: korean-tutor-frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules   # Evita que el volumen pise los node_modules del contenedor
+      - /app/.next
+    environment:
+      - NEXT_PUBLIC_APP_NAME=Korean Tutor
+      # En dev apunta al backend local
+      # En Vercel esto viene de las env vars del dashboard
+      - BACKEND_URL=http://backend:8000
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+networks:
+  default:
+    name: korean-tutor-network

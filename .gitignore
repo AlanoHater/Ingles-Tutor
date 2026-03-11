@@ -1,0 +1,60 @@
+# ========================
+# Models (son GBs, nunca a git)
+# ========================
+backend/models/*
+!backend/models/.gitkeep
+
+# ========================
+# Python
+# ========================
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+
+# ========================
+# Node / Next.js
+# ========================
+node_modules/
+frontend/.next/
+frontend/out/
+frontend/build/
+
+# ========================
+# Variables de entorno
+# ========================
+.env
+.env.local
+.env.*.local
+.env.production
+
+# ========================
+# Docker
+# ========================
+docker-compose.override.yml
+
+# ========================
+# OS
+# ========================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ========================
+# Editores
+# ========================
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ========================
+# Logs
+# ========================
+*.log
+logs/

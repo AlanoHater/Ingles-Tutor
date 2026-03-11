@@ -1,0 +1,34 @@
+# ========================
+# API
+# ========================
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+python-multipart==0.0.12   # Para recibir audio en /asr
+
+# ========================
+# LLM — Qwen3.5-2B via llama.cpp
+# ========================
+llama-cpp-python==0.3.4    # Instalar con soporte CUDA (ver README)
+
+# ========================
+# TTS — Kokoro
+# ========================
+kokoro==0.9.4
+soundfile==0.12.1
+numpy==1.26.4
+
+# ========================
+# ASR — Qwen3-ASR
+# ========================
+transformers==4.47.0
+torch==2.4.0
+torchaudio==2.4.0
+accelerate==0.34.0
+
+# ========================
+# Utils
+# ========================
+huggingface-hub==0.25.0    # Para descargar modelos
+python-dotenv==1.0.1
+httpx==0.27.0
+pydantic==2.9.2
