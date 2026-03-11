@@ -1,0 +1,16 @@
+# No copiar modelos al build context (se montan como volumen)
+models/
+*.gguf
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+.pytest_cache/
+
+# Misc
+.env
+.env.*
+*.log
