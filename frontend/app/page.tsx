@@ -144,26 +144,32 @@ export default function Home() {
     <div className="app-container">
       {/* Header */}
       <header className="header">
-        <span className="header-icon">🇰🇷</span>
-        <h1 className="header-title">Korean Tutor</h1>
-        <span className="header-subtitle">한국어 튜터</span>
-        <span className="header-status" />
+        <div className="header-brand">
+          <span className="header-icon">🇰🇷</span>
+          <div className="header-text">
+            <h1 className="header-title">Korean Tutor</h1>
+            <span className="header-subtitle">한국어 튜터</span>
+          </div>
+        </div>
+        <div className="header-status-pill">
+          <span className="status-dot" /> Listo
+        </div>
       </header>
 
-      {/* Chat */}
+      {/* Chat Area */}
       {messages.length === 0 ? (
         <div className="welcome">
-          <span className="welcome-icon">🎓</span>
-          <h2 className="welcome-title">¡Aprende coreano conmigo!</h2>
+          <span className="welcome-avatar">👋</span>
+          <h2 className="welcome-title">¡Hola! 안녕하세요</h2>
           <p className="welcome-subtitle">
-            Soy tu tutor de coreano con IA. Puedes escribir en español y te
-            enseñaré coreano paso a paso. ¡Prueba alguna de estas sugerencias!
+            Soy tu tutor personal de coreano. Estoy aquí para ayudarte a mejorar 
+            tu vocabulario, gramática y pronunciación. ¿Qué te gustaría practicar hoy?
           </p>
-          <div className="welcome-suggestions">
+          <div className="suggestions-grid">
             {SUGGESTIONS.map((s) => (
               <button
                 key={s}
-                className="suggestion-chip"
+                className="suggestion-card"
                 onClick={() => sendMessage(s)}
               >
                 {s}
@@ -175,29 +181,31 @@ export default function Home() {
         <ChatBox messages={messages} isLoading={isLoading} />
       )}
 
-      {/* Input */}
-      <div className="input-area">
-        <MicButton onTranscription={handleTranscription} />
-        <div className="input-wrapper">
+      {/* Input Area */}
+      <div className="input-container">
+        <div className="input-box">
           <textarea
             ref={inputRef}
             className="chat-input"
-            placeholder="Escribe tu mensaje en español o coreano..."
+            placeholder="Mensaje en español o coreano..."
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             rows={1}
             disabled={isLoading}
           />
+          <div className="fab-container">
+            <MicButton onTranscription={handleTranscription} />
+            <button
+              className="btn-icon btn-send"
+              onClick={() => sendMessage(input)}
+              disabled={!input.trim() || isLoading}
+              aria-label="Enviar mensaje"
+            >
+              ➤
+            </button>
+          </div>
         </div>
-        <button
-          className="btn-send"
-          onClick={() => sendMessage(input)}
-          disabled={!input.trim() || isLoading}
-          aria-label="Enviar mensaje"
-        >
-          ➤
-        </button>
       </div>
     </div>
   );

@@ -21,13 +21,12 @@ export default function ChatBox({ messages, isLoading }: ChatBoxProps) {
     <div className="chat-area">
       {messages.map((msg) => (
         <div key={msg.id} className={`message message--${msg.role}`}>
-          <span className="message-label">
-            {msg.role === "user" ? "Tú" : "🇰🇷 Tutor"}
-          </span>
+          {msg.role === "assistant" && (
+            <span className="message-label">🇰🇷 Tutor</span>
+          )}
           <div className="message-bubble">
             {msg.content || (msg.role === "assistant" && isLoading ? "" : "")}
           </div>
-          {/* Botón de audio para mensajes del tutor */}
           {msg.role === "assistant" && msg.content && (
             <div className="message-actions">
               <AudioPlayer text={msg.content} />

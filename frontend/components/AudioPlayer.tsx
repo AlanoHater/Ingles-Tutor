@@ -81,11 +81,11 @@ export default function AudioPlayer({ text }: AudioPlayerProps) {
       ) : isPlaying ? (
         <>
           ⏹
-          <span className="audio-wave">
-            <span className="audio-wave-bar" />
-            <span className="audio-wave-bar" />
-            <span className="audio-wave-bar" />
-            <span className="audio-wave-bar" />
+          <span className="audio-visualizer">
+            <span className="audio-bar" />
+            <span className="audio-bar" />
+            <span className="audio-bar" />
+            <span className="audio-bar" />
           </span>
         </>
       ) : (
