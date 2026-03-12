@@ -11,11 +11,10 @@ export default function AudioPlayer({ text }: AudioPlayerProps) {
   const [isLoading, setIsLoading] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Extraer solo texto coreano para TTS (caracteres hangul)
-  const extractKorean = (content: string): string => {
-    const koreanRegex = /[\uAC00-\uD7AF\u1100-\u11FF\u3130-\u318F]+/g;
-    const matches = content.match(koreanRegex);
-    return matches ? matches.join(" ") : content;
+  // Extract only the English part if the formatted "Inglés: [...]" is found
+  const extractEnglish = (content: string): string => {
+    const englishMatch = content.match(/Inglés:\s*(.+)/i);
+    return englishMatch ? englishMatch[1].trim() : content;
   };
 
   const playAudio = useCallback(async () => {
@@ -26,8 +25,8 @@ export default function AudioPlayer({ text }: AudioPlayerProps) {
       return;
     }
 
-    const koreanText = extractKorean(text);
-    if (!koreanText.trim()) return;
+    const englishText = extractEnglish(text);
+    if (!englishText.trim()) return;
 
     setIsLoading(true);
 
@@ -37,7 +36,7 @@ export default function AudioPlayer({ text }: AudioPlayerProps) {
       const response = await fetch(`${backendUrl}/tts`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: koreanText }),
+        body: JSON.stringify({ text: englishText }),
       });
 
       if (!response.ok) {

@@ -10,7 +10,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from routers import chat, tts, asr
+from routers import chat, tts
 
 # ---------------------------------------------------------------------------
 # Logging
@@ -38,7 +38,6 @@ async def lifespan(app: FastAPI):
     # Limpieza de modelos si es necesario
     chat.cleanup()
     tts.cleanup()
-    asr.cleanup()
 
 # ---------------------------------------------------------------------------
 # App
@@ -80,7 +79,6 @@ app.add_middleware(
 # ---------------------------------------------------------------------------
 app.include_router(chat.router)
 app.include_router(tts.router)
-app.include_router(asr.router)
 
 # ---------------------------------------------------------------------------
 # Health check
@@ -102,6 +100,5 @@ async def health():
         "models": {
             "llm": chat.is_loaded(),
             "tts": tts.is_loaded(),
-            "asr": asr.is_loaded(),
         },
     }

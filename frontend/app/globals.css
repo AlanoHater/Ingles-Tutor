@@ -1,7 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap");
 
 /* ================================================================
-   Korean Tutor — Premium Design System
+   English Tutor — Premium Design System
    Modern dark theme with glassmorphism and subtle glowing effects
    ================================================================ */
 
@@ -17,7 +17,7 @@
   --accent-primary: #60a5fa;
   --accent-secondary: #c084fc;
   --accent-glow: rgba(96, 165, 250, 0.15);
-  --accent-korean: #f472b6;
+  --accent-english: #f472b6;
   --accent-roman: #34d399;
   
   /* Text */
@@ -218,7 +218,7 @@ html, body {
   box-shadow: var(--shadow-sm), var(--shadow-glass);
 }
 
-/* Korean text formatting inside messages */
+/* English text formatting inside messages */
 .message--tutor blockquote {
   border-left: 3px solid var(--accent-secondary);
   margin: 12px 0;
@@ -232,8 +232,8 @@ html, body {
   font-weight: 600;
 }
 
-.korean-text {
-  color: var(--accent-korean);
+.english-text {
+  color: var(--accent-english);
   font-weight: 500;
   font-size: 1.1em;
   letter-spacing: 0.5px;

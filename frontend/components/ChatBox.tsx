@@ -22,7 +22,7 @@ export default function ChatBox({ messages, isLoading }: ChatBoxProps) {
       {messages.map((msg) => (
         <div key={msg.id} className={`message message--${msg.role}`}>
           {msg.role === "assistant" && (
-            <span className="message-label">🇰🇷 Tutor</span>
+            <span className="message-label">🇺🇸 Teacher</span>
           )}
           <div className="message-bubble">
             {msg.content || (msg.role === "assistant" && isLoading ? "" : "")}
@@ -40,7 +40,7 @@ export default function ChatBox({ messages, isLoading }: ChatBoxProps) {
         messages.length > 0 &&
         !messages[messages.length - 1].content && (
           <div className="message message--tutor">
-            <span className="message-label">🇰🇷 Tutor</span>
+            <span className="message-label">🇺🇸 Teacher</span>
             <div className="typing-indicator">
               <span className="typing-dot" />
               <span className="typing-dot" />

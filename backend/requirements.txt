@@ -3,30 +3,30 @@
 # ========================
 fastapi==0.115.0
 uvicorn[standard]==0.30.6
-python-multipart==0.0.12   # Para recibir audio en /asr
+python-multipart==0.0.12
 
 # ========================
 # LLM — Qwen3.5-2B via llama.cpp
 # ========================
-llama-cpp-python==0.3.4    # Instalar con soporte CUDA (ver README)
+llama-cpp-python==0.3.16
 
 # ========================
-# TTS — Kokoro (ES) + MMS (KO)
+# TTS — Kokoro (US English)
 # ========================
 kokoro>=0.6.0
 misaki
 soundfile==0.12.1
-# ASR — Qwen3-ASR
+
 # ========================
-transformers==4.47.0
+# Torch Base (para Kokoro)
+# ========================
 torch==2.4.0
 torchaudio==2.4.0
-accelerate==0.34.0
 
 # ========================
 # Utils
 # ========================
-huggingface-hub==0.25.0    # Para descargar modelos
+huggingface-hub
 python-dotenv==1.0.1
 httpx==0.27.0
 pydantic==2.9.2

@@ -15,10 +15,10 @@ export interface Message {
 }
 
 const SUGGESTIONS = [
-  "¿Cómo se dice 'hola' en coreano?",
-  "Enséñame a presentarme en coreano",
-  "¿Cómo cuento del 1 al 10?",
-  "¿Cuáles son las vocales en hangul?",
+  "¿Cómo se dice 'hola' en inglés?",
+  "Enséñame a presentarme en inglés",
+  "¿Cómo pido un café en un restaurante?",
+  "¿Cuál es la diferencia entre 'in', 'on' y 'at'?",
 ];
 
 // ---------------------------------------------------------------------------
@@ -145,10 +145,10 @@ export default function Home() {
       {/* Header */}
       <header className="header">
         <div className="header-brand">
-          <span className="header-icon">🇰🇷</span>
+          <span className="header-icon">🇺🇸</span>
           <div className="header-text">
-            <h1 className="header-title">Korean Tutor</h1>
-            <span className="header-subtitle">한국어 튜터</span>
+            <h1 className="header-title">English Tutor</h1>
+            <span className="header-subtitle">Your AI Teacher</span>
           </div>
         </div>
         <div className="header-status-pill">
@@ -160,10 +160,10 @@ export default function Home() {
       {messages.length === 0 ? (
         <div className="welcome">
           <span className="welcome-avatar">👋</span>
-          <h2 className="welcome-title">¡Hola! 안녕하세요</h2>
+          <h2 className="welcome-title">¡Hola! Hello!</h2>
           <p className="welcome-subtitle">
-            Soy tu tutor personal de coreano. Estoy aquí para ayudarte a mejorar 
-            tu vocabulario, gramática y pronunciación. ¿Qué te gustaría practicar hoy?
+            Soy tu tutor personal de inglés. Estoy aquí para ayudarte a mejorar 
+            tu vocabulario, gramática y fluidez conversacional. ¿Qué te gustaría practicar hoy?
           </p>
           <div className="suggestions-grid">
             {SUGGESTIONS.map((s) => (
@@ -187,7 +187,7 @@ export default function Home() {
           <textarea
             ref={inputRef}
             className="chat-input"
-            placeholder="Mensaje en español o coreano..."
+            placeholder="Escribe en español o inglés..."
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
