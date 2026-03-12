@@ -99,25 +99,13 @@ npm install
 npm run dev
 ```
 
-## CI/CD
+## Deploy y CI/CD
 
-El proyecto usa **GitHub Actions** con pipelines para frontend y backend:
+> [!NOTE]
+> Por ahora, el proyecto está enfocado en una **versión mínima funcional local**. 
+> Las integraciones de CI/CD avanzadas y el despliegue automático (vía Vercel u otros) se implementarán en el futuro.
 
-- **Backend** (`.github/workflows/ci-backend.yml`): lint con `ruff`, tests con `pytest`, verificación de Docker build
-- **Frontend** (`.github/workflows/ci-frontend.yml`): lint, type check, build, y deploy automático a Vercel en `main`
-
-Para el deploy a Vercel, agrega estos **secrets** en tu repo de GitHub:
-- `VERCEL_TOKEN`
-- `VERCEL_ORG_ID`
-- `VERCEL_PROJECT_ID`
-
-## Deploy en producción
-
-- **Frontend** → Vercel (conecta el repo, agrega `BACKEND_URL` en env vars)
-- **Backend** → corre en tu GPU expuesto via Cloudflare Tunnel
-  ```bash
-  cloudflared tunnel --url http://localhost:8000
-  ```
+Para despliegues locales, se recomienda seguir usando `docker compose`.
 
 ## Arquitectura
 
