@@ -1,6 +1,6 @@
-# 🇰🇷 Korean Tutor — App de aprendizaje de coreano
+# 🇺🇸 English Tutor — App de aprendizaje de inglés
 
-Stack local de AI para aprender coreano con español como idioma base.
+Stack local de AI para aprender inglés con español como idioma base.
 
 ## Modelos usados
 
@@ -8,7 +8,7 @@ Stack local de AI para aprender coreano con español como idioma base.
 | ------------------- | ---------------------- | ------ |
 | Qwen3.5-2B (Q4_K_M) | LLM tutor              | ~2.5GB |
 | Qwen3-ASR-0.6B      | Transcripción de voz   | ~1GB   |
-| Kokoro-82M          | Text-to-Speech coreano | CPU    |
+| Kokoro-82M          | Text-to-Speech inglés  | CPU    |
 
 ## Requisitos
 
@@ -23,7 +23,7 @@ Stack local de AI para aprender coreano con español como idioma base.
 
 ```bash
 git clone <tu-repo>
-cd korean-tutor
+cd english-tutor
 ```
 
 ### 2. Variables de entorno
@@ -58,7 +58,7 @@ docker compose up --build
 - Backend API: http://localhost:8000
 - Docs API: http://localhost:8000/docs
 
-> ⏱️ El primer build tarda ~10-15 min porque compila `llama-cpp-python` con soporte CUDA dentro del contenedor. Los rebuilds siguientes son rápidos gracias al cache de Docker.
+> ⏱️ El primer build tarda ~10-15 min porque compila `llama-cpp-python` con soporte CUDA dentro del contenedor, aunque las dependencias base bajan rapidísimo gracias al cache de `uv`.
 
 ## Optimizaciones GPU
 
@@ -90,7 +90,7 @@ LLM_GPU_LAYERS=-1         # Capas en GPU, -1 = todas (default: -1)
 | ------ | ---------------------- | ----------------------------- |
 | GET    | `/health`              | Health check + estado de modelos |
 | POST   | `/v1/chat/completions` | Chat con el tutor (streaming SSE) |
-| POST   | `/tts`                 | Texto coreano → audio WAV     |
+| POST   | `/tts`                 | Texto en inglés → audio WAV   |
 | POST   | `/asr`                 | Audio → texto transcrito      |
 
 ## Desarrollo frontend sin Docker
@@ -124,7 +124,7 @@ Para el deploy a Vercel, agrega estos **secrets** en tu repo de GitHub:
 ## Arquitectura
 
 ```
-korean-tutor/
+english-tutor/
 ├── backend/
 │   ├── main.py              # FastAPI app, CORS, health, lifespan
 │   ├── routers/
@@ -132,7 +132,7 @@ korean-tutor/
 │   │   ├── tts.py           # Text-to-Speech (Kokoro)
 │   │   └── asr.py           # Speech-to-Text (Qwen3-ASR)
 │   ├── models/              # GGUFs (no en git)
-│   ├── Dockerfile           # CUDA 12.1 + Python 3.11
+│   ├── Dockerfile           # CUDA 12.1 + Python 3.11 (optimizado por uv)
 │   └── requirements.txt
 ├── frontend/
 │   ├── app/

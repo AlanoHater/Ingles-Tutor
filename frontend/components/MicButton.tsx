@@ -20,7 +20,7 @@ export default function MicButton({ onTranscription }: MicButtonProps) {
       const recognition = new SpeechRecognition();
       recognition.continuous = false;
       recognition.interimResults = false;
-      recognition.lang = "en-US"; // Transcription language restricted to English
+      recognition.lang = "en-US"; // English recognition
 
       recognition.onstart = () => {
         setIsRecording(true);
@@ -75,8 +75,8 @@ export default function MicButton({ onTranscription }: MicButtonProps) {
     <button
       className={`btn-mic ${isRecording ? "recording" : ""}`}
       onClick={toggleRecording}
-      aria-label={isRecording ? "Detener grabación" : "Grabar audio en inglés"}
-      title={isRecording ? "Click para detener" : "Habla en Inglés"}
+      aria-label={isRecording ? "Stop recording" : "Record audio in English"}
+      title={isRecording ? "Click to stop" : "Speak in English"}
     >
       {isRecording ? "⏹" : "🎤"}
     </button>

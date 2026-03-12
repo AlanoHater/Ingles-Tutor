@@ -1,6 +1,6 @@
 """
-Korean Tutor — Backend API
-FastAPI app con modelos de AI para aprender coreano.
+English Tutor — Backend API
+FastAPI app con modelos de AI para aprender inglés.
 """
 
 import os
@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Inicializa modelos al arrancar y los libera al apagar."""
-    logger.info("🚀 Arrancando Korean Tutor backend...")
+    logger.info("🚀 Arrancando English Tutor backend...")
 
     # Los modelos se cargan lazy (al primer request) para agilizar el arranque.
     # Si quieres precargarlos, descomenta las líneas de abajo:
@@ -34,7 +34,7 @@ async def lifespan(app: FastAPI):
 
     yield
 
-    logger.info("🛑 Apagando Korean Tutor backend...")
+    logger.info("🛑 Apagando English Tutor backend...")
     # Limpieza de modelos si es necesario
     chat.cleanup()
     tts.cleanup()
@@ -43,8 +43,8 @@ async def lifespan(app: FastAPI):
 # App
 # ---------------------------------------------------------------------------
 app = FastAPI(
-    title="Korean Tutor API",
-    description="API para el tutor de coreano con IA local",
+    title="English Tutor API",
+    description="API para el tutor de inglés con IA local",
     version="0.1.0",
     lifespan=lifespan,
 )

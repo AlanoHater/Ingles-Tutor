@@ -7,7 +7,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: korean-tutor-backend
+    container_name: english-tutor-backend
     ports:
       - "8000:8000"
     volumes:
@@ -19,7 +19,7 @@ services:
     environment:
       - MODEL_PATH=/app/models/Qwen_Qwen3.5-2B-Q4_K_M.gguf
       - ASR_MODEL=Qwen/Qwen3-ASR-0.6B
-      - TTS_VOICE=ko-KR-SunHiNeural  # voz coreana femenina (Edge TTS)
+      - TTS_VOICE=en-US-AriaNeural  # voz en inglés femenina (Edge TTS)
       - PYTHONUNBUFFERED=1
     # GPU passthrough — requiere NVIDIA Container Toolkit
     deploy:
@@ -44,7 +44,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: korean-tutor-frontend
+    container_name: english-tutor-frontend
     ports:
       - "3000:3000"
     volumes:
@@ -52,7 +52,7 @@ services:
       - /app/node_modules   # Evita que el volumen pise los node_modules del contenedor
       - /app/.next
     environment:
-      - NEXT_PUBLIC_APP_NAME=Korean Tutor
+      - NEXT_PUBLIC_APP_NAME=English Tutor
       # Server-side: Next.js API routes proxy al backend
       - BACKEND_URL=http://backend:8000
       # Client-side: browser llama directo a ASR/TTS
@@ -64,4 +64,4 @@ services:
 
 networks:
   default:
-    name: korean-tutor-network
+    name: english-tutor-network

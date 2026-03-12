@@ -15,10 +15,10 @@ export interface Message {
 }
 
 const SUGGESTIONS = [
-  "¿Cómo se dice 'hola' en inglés?",
-  "Enséñame a presentarme en inglés",
-  "¿Cómo pido un café en un restaurante?",
-  "¿Cuál es la diferencia entre 'in', 'on' y 'at'?",
+  "How do I say 'hello' in English?",
+  "Teach me how to introduce myself",
+  "How do I order a coffee in a restaurant?",
+  "What is the difference between 'in', 'on', and 'at'?",
 ];
 
 // ---------------------------------------------------------------------------
@@ -162,8 +162,8 @@ export default function Home() {
           <span className="welcome-avatar">👋</span>
           <h2 className="welcome-title">¡Hola! Hello!</h2>
           <p className="welcome-subtitle">
-            Soy tu tutor personal de inglés. Estoy aquí para ayudarte a mejorar 
-            tu vocabulario, gramática y fluidez conversacional. ¿Qué te gustaría practicar hoy?
+            I am your personal English tutor. I'm here to help you improve 
+            your vocabulary, grammar, and conversational fluency. What would you like to practice today?
           </p>
           <div className="suggestions-grid">
             {SUGGESTIONS.map((s) => (

@@ -130,7 +130,7 @@ class ChatRequest(BaseModel):
 # ---------------------------------------------------------------------------
 @router.post("/v1/chat/completions")
 async def chat_completions(request: ChatRequest):
-    """Chat con el tutor coreano. Soporta streaming SSE."""
+    """Chat con el tutor de inglés. Soporta streaming SSE."""
     try:
         llm = get_llm()
     except FileNotFoundError as e:

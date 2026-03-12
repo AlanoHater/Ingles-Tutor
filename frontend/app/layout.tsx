@@ -5,10 +5,10 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Korean Tutor — 한국어 튜터",
+  title: "English Tutor",
   description:
-    "Aprende coreano con un tutor de IA. Practica conversación, pronunciación y gramática coreana en español.",
-  keywords: ["coreano", "tutor", "IA", "aprender", "hangul", "한국어"],
+    "Aprende inglés con un tutor de IA. Practica conversación, pronunciación y gramática en inglés usando comandos de voz.",
+  keywords: ["inglés", "tutor", "IA", "aprender", "english"],
 };
 
 export default function RootLayout({
