@@ -21,7 +21,7 @@ router = APIRouter()
 # ---------------------------------------------------------------------------
 _llm = None
 
-MODEL_PATH = os.getenv("MODEL_PATH", "/app/models/qwen3.5-2b-q4_k_m.gguf")
+MODEL_PATH = os.getenv("MODEL_PATH", "/app/models/Qwen3.5-2B-Q4_K_M.gguf")
 CONTEXT_SIZE = int(os.getenv("LLM_CONTEXT_SIZE", "4096"))
 GPU_LAYERS = int(os.getenv("LLM_GPU_LAYERS", "-1"))  # -1 = todas las capas en GPU
 

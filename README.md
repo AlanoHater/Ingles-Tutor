@@ -7,7 +7,6 @@ Stack local de AI para aprender inglés con español como idioma base.
 | Modelo              | Tarea                  | VRAM   |
 | ------------------- | ---------------------- | ------ |
 | Qwen3.5-2B (Q4_K_M) | LLM tutor              | ~2.5GB |
-| Qwen3-ASR-0.6B      | Transcripción de voz   | ~1GB   |
 | Kokoro-82M          | Text-to-Speech inglés  | CPU    |
 
 ## Requisitos

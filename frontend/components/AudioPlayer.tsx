@@ -11,9 +11,10 @@ export default function AudioPlayer({ text }: AudioPlayerProps) {
   const [isLoading, setIsLoading] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Extract only the English part if the formatted "Inglés: [...]" is found
+  // Extract English text, handling multi-line and capturing everything after "Inglés:"
   const extractEnglish = (content: string): string => {
-    const englishMatch = content.match(/Inglés:\s*(.+)/i);
+    // Captura todo lo que sigue a "Inglés:" hasta el final del string o la siguiente etiqueta
+    const englishMatch = content.match(/Inglés:\s*([\s\S]+?)(?=\n\n|\nSignificado:|$)/i);
     return englishMatch ? englishMatch[1].trim() : content;
   };
 

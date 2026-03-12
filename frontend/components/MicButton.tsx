@@ -8,9 +8,12 @@ interface MicButtonProps {
 
 export default function MicButton({ onTranscription }: MicButtonProps) {
   const [isRecording, setIsRecording] = useState(false);
+  const [isMounted, setIsMounted] = useState(false); // Nuevo para hidratación
   const recognitionRef = useRef<any>(null);
 
   useEffect(() => {
+    setIsMounted(true); // Se marca como montado en el cliente
+    
     // Initialize SpeechRecognition
     const SpeechRecognition =
       (window as any).SpeechRecognition ||
@@ -62,6 +65,15 @@ export default function MicButton({ onTranscription }: MicButtonProps) {
       }
     }
   }, [isRecording]);
+
+  // Si no está montado, renderizamos un placeholder neutro para evitar mismatch
+  if (!isMounted) {
+    return (
+      <button className="btn-mic" disabled>
+        🎤
+      </button>
+    );
+  }
 
   if (!recognitionRef.current && typeof window !== 'undefined') {
     return (

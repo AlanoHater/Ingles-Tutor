@@ -30,7 +30,6 @@ async def lifespan(app: FastAPI):
     # Si quieres precargarlos, descomenta las líneas de abajo:
     # chat.get_llm()
     # tts.get_tts_pipeline()
-    # asr.get_asr_pipeline()
 
     yield
 

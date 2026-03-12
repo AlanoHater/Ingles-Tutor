@@ -74,13 +74,17 @@ export default function Home() {
 
         const decoder = new TextDecoder();
         let fullContent = "";
+        let buffer = ""; // Buffer para chunks fragmentados
 
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
 
-          const chunk = decoder.decode(value, { stream: true });
-          const lines = chunk.split("\n");
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          
+          // El último elemento puede ser un fragmento incompleto, lo guardamos en el buffer
+          buffer = lines.pop() || "";
 
           for (const line of lines) {
             if (line.startsWith("data: ")) {
