@@ -4,10 +4,10 @@ Stack local de AI para aprender inglés con español como idioma base.
 
 ## Modelos usados
 
-| Modelo              | Tarea                  | VRAM   |
-| ------------------- | ---------------------- | ------ |
-| Qwen3.5-2B (Q4_K_M) | LLM tutor              | ~2.5GB |
-| Kokoro-82M          | Text-to-Speech inglés  | CPU    |
+| Modelo              | Tarea                  | VRAM (Est.) |
+| ------------------- | ---------------------- | ----------- |
+| Qwen3.5-2B (Q4_K_M) | LLM tutor              | ~3.2GB      |
+| Kokoro-82M          | Text-to-Speech inglés  | ~1.2GB      |
 
 ## Requisitos
 
@@ -45,7 +45,7 @@ huggingface-cli download \
   --local-dir backend/models
 ```
 
-> Los modelos ASR y TTS se descargan automáticamente la primera vez que inicias el backend.
+> El modelo TTS (Kokoro) se descarga automáticamente la primera vez que inicias el backend. El dictado (ASR) utiliza la API nativa del navegador para ahorrar VRAM.
 
 ### 4. Levanta todo
 
@@ -65,21 +65,21 @@ El backend aplica 4 optimizaciones automáticamente para sacarle el máximo a tu
 
 | Optimización           | Qué hace                                                         | Impacto                     |
 | ---------------------- | ---------------------------------------------------------------- | --------------------------- |
-| **KV Cache Quant**     | Cuantiza el cache de atención de f16 → q8_0                      | ~400MB VRAM liberados       |
+| **KV Cache Quant**     | Cuantiza el cache de atención de f16 → q4_0                      | ~900MB VRAM liberados       |
 | **Flash Attention**    | Cálculo de atención optimizado                                   | ~20% más rápido             |
-| **Prompt Caching**     | Cachea el eval del system prompt entre requests                   | Latencia mínima del 2do msg en adelante |
-| **Continuous Batching**| Procesa tokens en batches de 512                                 | Mejor throughput            |
+| **Prompt Caching**     | Cachea el eval del system prompt (anclado via FIFO)              | Latencia <100ms tras el 1er msg |
+| **8K Context**         | Doble de memoria que el estándar (4096)                         | Charlas mucho más largas    |
 
-Resultado esperado: **25-40 tokens/segundo** en una RTX 4050 Laptop.
+Resultado esperado: **30-50 tokens/segundo** en una RTX 4050 Laptop.
 
 Todas son configurables via variables de entorno:
 
 ```bash
-LLM_KV_TYPE_K=q8_0       # Tipo KV cache para Keys (default: q8_0)
-LLM_KV_TYPE_V=q8_0       # Tipo KV cache para Values (default: q8_0)
+LLM_KV_TYPE_K=q4_0       # Tipo KV cache para Keys (default: q4_0)
+LLM_KV_TYPE_V=q4_0       # Tipo KV cache para Values (default: q4_0)
 LLM_FLASH_ATTN=true      # Flash Attention activado (default: true)
 LLM_N_BATCH=512           # Tokens por batch (default: 512)
-LLM_CONTEXT_SIZE=4096     # Tamaño de contexto (default: 4096)
+LLM_CONTEXT_SIZE=8192     # Tamaño de contexto (default: 8192)
 LLM_GPU_LAYERS=-1         # Capas en GPU, -1 = todas (default: -1)
 ```
 
@@ -90,7 +90,6 @@ LLM_GPU_LAYERS=-1         # Capas en GPU, -1 = todas (default: -1)
 | GET    | `/health`              | Health check + estado de modelos |
 | POST   | `/v1/chat/completions` | Chat con el tutor (streaming SSE) |
 | POST   | `/tts`                 | Texto en inglés → audio WAV   |
-| POST   | `/asr`                 | Audio → texto transcrito      |
 
 ## Desarrollo frontend sin Docker
 
@@ -127,10 +126,9 @@ english-tutor/
 ├── backend/
 │   ├── main.py              # FastAPI app, CORS, health, lifespan
 │   ├── routers/
-│   │   ├── chat.py          # LLM streaming (Qwen3.5-2B)
-│   │   ├── tts.py           # Text-to-Speech (Kokoro)
-│   │   └── asr.py           # Speech-to-Text (Qwen3-ASR)
-│   ├── models/              # GGUFs (no en git)
+│   │   ├── chat.py          # LLM streaming (Qwen3.5-2B) + Context Shifting
+│   │   └── tts.py           # Text-to-Speech (Kokoro)
+│   ├── data/                # Persistencia de sesiones (JSON)
 │   ├── Dockerfile           # CUDA 12.1 + Python 3.11 (optimizado por uv)
 │   └── requirements.txt
 ├── frontend/
