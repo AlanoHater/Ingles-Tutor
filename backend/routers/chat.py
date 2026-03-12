@@ -8,18 +8,20 @@ import json
 import logging
 from typing import Optional
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, BackgroundTasks
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
+from typing import List, Dict, Any
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
 # ---------------------------------------------------------------------------
-# Modelo global (lazy-loaded)
+# Modelo global y Memoria de Sesiones
 # ---------------------------------------------------------------------------
 _llm = None
+_session_summaries: Dict[str, str] = {}  # session_id -> summary_text
 
 MODEL_PATH = os.getenv("MODEL_PATH", "/app/models/Qwen3.5-2B-Q4_K_M.gguf")
 CONTEXT_SIZE = int(os.getenv("LLM_CONTEXT_SIZE", "4096"))
@@ -119,18 +121,76 @@ class ChatMessage(BaseModel):
 
 
 class ChatRequest(BaseModel):
-    messages: list[ChatMessage]
+    messages: List[ChatMessage]
     temperature: float = 0.7
     max_tokens: int = 512
     stream: bool = True
+    session_id: str = "default_user"  # Para persistencia de resúmenes
+
+# ---------------------------------------------------------------------------
+# Utilidades de Context Shifting
+# ---------------------------------------------------------------------------
+
+def _count_tokens(llm, text: str) -> int:
+    """Cuenta tokens reales usando el tokenizador del modelo."""
+    if not text: return 0
+    return len(llm.tokenize(text.encode("utf-8"), add_bos=False))
+
+def _trim_history(llm, messages: List[Dict], max_context: int, reserve_tokens: int) -> List[Dict]:
+    """
+    Mantiene el System Prompt y recorta el historial (FIFO) para 
+    ajustarse al límite de tokens del contexto.
+    """
+    system_msg = messages[0] if messages and messages[0]["role"] == "system" else None
+    chat_history = messages[1:] if system_msg else messages
+    
+    available_tokens = max_context - reserve_tokens
+    if system_msg:
+        available_tokens -= _count_tokens(llm, system_msg["content"])
+    
+    trimmed = []
+    current_tokens = 0
+    
+    # Recorremos de más nuevos a más viejos
+    for msg in reversed(chat_history):
+        msg_tokens = _count_tokens(llm, msg["content"])
+        if current_tokens + msg_tokens > available_tokens:
+            break
+        trimmed.insert(0, msg)
+        current_tokens += msg_tokens
+        
+    final_messages = [system_msg] + trimmed if system_msg else trimmed
+    return final_messages
+
+def _generate_summary_task(llm, session_id: str, messages_to_summarize: List[Dict]):
+    """Tarea en segundo plano para resumir parte del historial."""
+    global _session_summaries
+    if not messages_to_summarize:
+        return
+
+    history_text = "\n".join([f"{m['role']}: {m['content']}" for m in messages_to_summarize])
+    prompt = f"Resume brevemente (máximo 2 párrafos) los puntos clave de esta conversación para que el tutor pueda recordarlos. Habla en español.\n\nCONVERSACIÓN:\n{history_text}\n\nRESUMEN:"
+    
+    try:
+        logger.info(f"🔄 Generando resumen asíncrono para sesión {session_id}...")
+        response = llm.create_chat_completion(
+            messages=[{"role": "user", "content": prompt}],
+            max_tokens=256,
+            temperature=0.3
+        )
+        summary = response["choices"][0]["message"]["content"].strip()
+        _session_summaries[session_id] = summary
+        logger.info(f"✅ Resumen actualizado para {session_id}")
+    except Exception as e:
+        logger.error(f"❌ Error en tarea de resumen: {e}")
 
 
 # ---------------------------------------------------------------------------
 # Endpoint
 # ---------------------------------------------------------------------------
 @router.post("/v1/chat/completions")
-async def chat_completions(request: ChatRequest):
-    """Chat con el tutor de inglés. Soporta streaming SSE."""
+async def chat_completions(request: ChatRequest, background_tasks: BackgroundTasks):
+    """Chat con el tutor de inglés. Soporta Context Shifting."""
     try:
         llm = get_llm()
     except FileNotFoundError as e:
@@ -138,13 +198,33 @@ async def chat_completions(request: ChatRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error cargando modelo: {e}")
 
-    # Prepend system prompt
-    messages = [{"role": "system", "content": SYSTEM_PROMPT}]
-    messages.extend([{"role": m.role, "content": m.content} for m in request.messages])
+    # 1. Preparar historial base
+    raw_messages = [{"role": m.role, "content": m.content} for m in request.messages]
+    
+    # 2. Inyectar Resumen si existe
+    summary = _session_summaries.get(request.session_id)
+    system_content = SYSTEM_PROMPT
+    if summary:
+        system_content += f"\n\nRECORDATORIO DE LA CONVERSACIÓN ANTERIOR:\n{summary}"
+        
+    messages = [{"role": "system", "content": system_content}]
+    messages.extend(raw_messages)
+
+    # 3. Sliding Window: Asegurar que no excedemos CONTEXT_SIZE
+    # Reservamos tokens para la respuesta (max_tokens)
+    final_messages = _trim_history(llm, messages, CONTEXT_SIZE, request.max_tokens)
+    
+    # 4. Trigger de Resumen Asíncrono (si estamos al 80%)
+    total_tokens = sum([_count_tokens(llm, m["content"]) for m in final_messages])
+    if total_tokens > (CONTEXT_SIZE * 0.8) and len(raw_messages) > 4:
+        # Resumimos los mensajes que NO entraron en final_messages o los más viejos
+        # Para simplificar: resumimos los primeros N mensajes del request actual
+        messages_to_summarize = raw_messages[:min(len(raw_messages), 6)]
+        background_tasks.add_task(_generate_summary_task, llm, request.session_id, messages_to_summarize)
 
     if request.stream:
         return StreamingResponse(
-            _stream_response(llm, messages, request.temperature, request.max_tokens),
+            _stream_response(llm, final_messages, request.temperature, request.max_tokens),
             media_type="text/event-stream",
             headers={
                 "Cache-Control": "no-cache",
@@ -155,7 +235,7 @@ async def chat_completions(request: ChatRequest):
     else:
         # Non-streaming response
         response = llm.create_chat_completion(
-            messages=messages,
+            messages=final_messages,
             temperature=request.temperature,
             max_tokens=request.max_tokens,
             stream=False,
