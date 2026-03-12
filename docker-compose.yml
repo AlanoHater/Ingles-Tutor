@@ -18,6 +18,9 @@ services:
       - ./backend/models:/app/models
     environment:
       - MODEL_PATH=/app/models/Qwen3.5-2B-Q4_K_M.gguf
+      - LLM_CONTEXT_SIZE=8192
+      - LLM_KV_TYPE_K=q4_0
+      - LLM_KV_TYPE_V=q4_0
       - TTS_VOICE=en-US-AriaNeural  # voz en inglés femenina (Edge TTS)
       - PYTHONUNBUFFERED=1
     # GPU passthrough — requiere NVIDIA Container Toolkit
