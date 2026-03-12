@@ -11,13 +11,11 @@ python-multipart==0.0.12   # Para recibir audio en /asr
 llama-cpp-python==0.3.4    # Instalar con soporte CUDA (ver README)
 
 # ========================
-# TTS — Kokoro
+# TTS — Kokoro (ES) + MMS (KO)
 # ========================
-kokoro==0.9.4
+kokoro>=0.6.0
+misaki
 soundfile==0.12.1
-numpy==1.26.4
-
-# ========================
 # ASR — Qwen3-ASR
 # ========================
 transformers==4.47.0

@@ -35,10 +35,14 @@ WORKDIR /app
 # Instala dependencias primero (mejor cache de Docker)
 COPY requirements.txt .
 
-# CRÍTICO: Compilar llama-cpp-python con soporte CUDA
-ENV CMAKE_ARGS="-DGGML_CUDA=on"
-RUN pip install --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+# CRÍTICO: Instalar `uv` para descargas ultra-rápidas
+RUN pip install uv
+
+# Instalar dependencias base con uv (~15x más rápido que pip)
+# Pasamos la URL de binarios precompilados para CUDA 12.1 de llama-cpp-python
+# para evitar que se compile desde cero durante la resolución de requirements.txt.
+RUN uv pip install --system --no-cache-dir -r requirements.txt \
+    --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cu121
 
 # Copia el código
 COPY . .
